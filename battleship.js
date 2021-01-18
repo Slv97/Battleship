@@ -6,12 +6,10 @@ let view = {
     displayHit: function(location) {
         let cell = document.getElementById(location);
         cell.setAttribute('class', 'hit');
-
     },
     displayMiss: function(location) {
         let cell = document.getElementById(location);
         cell.setAttribute('class', 'miss');
-
     }     
 }; 
 
@@ -21,9 +19,9 @@ let model = {
     shipsSunk: 0,
     shipLength: 3,
     ships: [
-        {locations: ['10', '20', '30'], hits: ['', '', '']},
-        {locations: ['32', '33', '34'], hits: ['', '', '']},
-        {locations: ['06', '16', '26'], hits: ['', '', '']}
+        {locations: [0, 0, 0], hits: ['', '', '']},
+        {locations: [0, 0, 0], hits: ['', '', '']},
+        {locations: [0, 0, 0], hits: ['', '', '']}
     ],
     fire: function(guess) {
         for (let i = 0; i < this.numShips; i++) {
@@ -51,7 +49,50 @@ let model = {
             }
         }
         return true;
-    }
+    },
+    generateShipLocations: function() {
+        let locations;
+        for (let i=0; i < this.numShips; i++) {
+            do {
+                locations = this.generateShip();
+            } while (this.collision(locations));
+            this.ships[i].locations = locations; 
+        }
+    }, 
+    generateShip: function() {
+        let direction = Math.floor(Math.random() * 2);
+        let row,
+            col;
+
+        if (direction === 1) {
+            row = Math.floor(Math.random() * this.boardSize);
+            col = Math.floor(Math.random() * (this.boardSize - this.shipLength));
+        } else {
+            row = Math.floor(Math.random() * (this.boardSize - this.shipLength));
+            col = Math.floor(Math.random() * this.boardSize);
+        }
+
+        let newShipLocations = [];
+        for (let i = 0; i < this.shipLength; i++) {
+            if (direction === 1) {
+                newShipLocations.push(row + '' + (col + i));
+            } else {
+                newShipLocations.push((row + i) + '' + col);
+            }
+        }
+        return newShipLocations;
+    },
+    collision: function(locations) {
+        for (let i = 0; i < this.numShips; i++) {
+            let ship = model.ships[i];
+            for (let j = 0; j < locations.length; j++) {
+                if (ship.locations.indexOf(locations[j]) >= 0) {
+                    return true;
+                }
+            }                
+        }
+        return false;
+    }    
 };
 
 let controller = {
@@ -94,6 +135,8 @@ function init() {
 
     let guessInput = document.getElementById('guessInput');
     guessInput.onkeypress = handleKeyPress;
+
+    model.generateShipLocations();
 }
 
 function handleFireButton() {
@@ -112,71 +155,3 @@ function handleKeyPress(e) {
 }
 
 window.onload = init;
-
-
-
-
-
-
-// let randomLok = Math.floor(Math.random() * 5),
-//     location1 = randomLok,
-//     location2 = location1 + 1,
-//     location3 = location2 + 1,
-//     guess,
-//     hits = 0,
-//     guesses = 0,
-//     isSunk = false,
-//     exquess;
-
-// while (isSunk == false) {
-//     guess = prompt('Ready, aim, fire! (enter a number 0-6): ');
-    
-//     if (guess < 0 || guess > 6) {
-//         alert("Please enter a valid cell number!");
-//     } else {
-//         guesses = guesses + 1;
-
-//         if (guess == location1 || guess == location2 || guess == location3) {
-//             alert("HIT!");
-//             hits = hits + 1;
-//             if (hits == 3) {
-//                 isSunk = true;
-//                 alert("You sank my battleship!");
-//             } 
-//         } else {
-//             alert("MISS");       
-//         }; 
-//     };
-// };
-// let stats = "You took " + guesses + " guesses to sink the battleship, " + "which means your shooting accuracy was " + (3/guesses);
-// alert(stats);
-
-// function clunk(times) {
-//     var num = times;
-//     while (num > 0) {
-//     display("clunk");
-//     num = num - 1;
-//     }
-//     }
-//     function thingamajig(size) {
-//     var facky = 1;
-//     clunkCounter = 0;
-//     if (size == 0) {
-//     display("clank");
-//     } else if (size == 1) {
-//     display("thunk");
-//     } else {
-//     while (size > 1) {
-//     facky = facky * size;
-//     size = size - 1;
-//     }
-//     clunk(facky);
-//     }
-//     }
-//     function display(output) {
-//     console.log(output);
-//     clunkCounter = clunkCounter + 1;
-//     }
-//     var clunkCounter = 0;
-//     thingamajig(5);
-//     console.log(clunkCounter)
